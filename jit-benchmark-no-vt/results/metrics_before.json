@@ -1,0 +1,1 @@
+{"ts": "2026-06-11T12:28:26Z", "label": "before", "jvm": {"heap_mb": 10.86, "cpu_pct": 37.39, "gc_pause_s": 0.06, "threads": 22.0, "tps": null}, "native": {"heap_mb": 43.5, "cpu_pct": 3.96, "gc_pause_s": null, "threads": 18.0, "tps": null}}
