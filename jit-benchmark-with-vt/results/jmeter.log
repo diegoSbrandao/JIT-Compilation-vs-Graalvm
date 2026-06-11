@@ -1,0 +1,23 @@
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+WARN StatusConsoleListener The use of package scanning to locate plugins is deprecated and will be removed in a future release
+Jun 11, 2026 12:20:02 PM java.util.prefs.FileSystemPreferences$1 run
+INFO: Created user preferences directory.
+Creating summariser <summary>
+Created the tree successfully using /jmeter/benchmark.jmx
+Starting standalone test @ 2026 Jun 11 12:20:02 GMT (1781180402912)
+Waiting for possible Shutdown/StopTestNow/HeapDump/ThreadDump message on port 4445
+summary +      1 in 00:00:00 =    4.3/s Avg:    47 Min:    47 Max:    47 Err:     0 (0.00%) Active: 2 Started: 2 Finished: 0
+summary +   4196 in 00:00:27 =  157.0/s Avg:   220 Min:     1 Max:  2892 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =   4197 in 00:00:27 =  155.7/s Avg:   220 Min:     1 Max:  2892 Err:     0 (0.00%)
+summary +   4698 in 00:00:30 =  156.7/s Avg:   243 Min:     0 Max:  3290 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =   8895 in 00:00:57 =  156.2/s Avg:   232 Min:     0 Max:  3290 Err:     0 (0.00%)
+summary +   4842 in 00:00:30 =  161.4/s Avg:   236 Min:     0 Max:  3101 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =  13737 in 00:01:27 =  158.0/s Avg:   233 Min:     0 Max:  3290 Err:     0 (0.00%)
+summary +   5053 in 00:00:30 =  168.0/s Avg:   228 Min:     0 Max:  3692 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =  18790 in 00:01:57 =  160.6/s Avg:   232 Min:     0 Max:  3692 Err:     0 (0.00%)
+summary +   5083 in 00:00:30 =  169.8/s Avg:   225 Min:     0 Max:  3282 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =  23873 in 00:02:27 =  162.4/s Avg:   230 Min:     0 Max:  3692 Err:     0 (0.00%)
+summary +   5185 in 00:00:30 =  172.7/s Avg:   221 Min:     0 Max:  3083 Err:     0 (0.00%) Active: 40 Started: 40 Finished: 0
+summary =  29058 in 00:02:57 =  164.2/s Avg:   229 Min:     0 Max:  3692 Err:     0 (0.00%)

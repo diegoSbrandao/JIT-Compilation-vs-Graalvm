@@ -1,0 +1,116 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# jit-benchmark-with-vt
+# Cenário: JVM vs Native Image — AMBOS com Virtual Threads habilitadas
+# Comparação limpa: somente o runtime muda (HotSpot JIT vs GraalVM AOT)
+# Máquina: 12 cores — JVM=4 cores, Native=4 cores, resto p/ infra
+# ══════════════════════════════════════════════════════════════════════════════
+services:
+
+  app-jvm:
+    build:
+      context: ./app-jvm
+      dockerfile: Dockerfile
+    container_name: vt-app-jvm
+    ports:
+      - "8080:8080"
+    mem_limit: 768m
+    memswap_limit: 768m
+    cpus: "4.0"
+    environment:
+      JAVA_OPTS: >-
+        -Xms256m -Xmx512m
+        -XX:+TieredCompilation
+        -XX:ReservedCodeCacheSize=128m
+        -XX:CICompilerCount=4
+    networks:
+      - benchmark-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  app-native:
+    build:
+      context: ./app-native
+      dockerfile: Dockerfile
+    container_name: vt-app-native
+    ports:
+      - "8081:8081"
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: "4.0"
+    networks:
+      - benchmark-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/actuator/health | grep -q UP || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: vt-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=4h'
+    depends_on:
+      app-jvm:
+        condition: service_healthy
+      app-native:
+        condition: service_healthy
+    networks:
+      - benchmark-net
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: vt-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - benchmark-net
+
+  jmeter:
+    build:
+      context: ./jmeter
+      dockerfile: Dockerfile
+    container_name: vt-jmeter
+    depends_on:
+      app-jvm:
+        condition: service_healthy
+      app-native:
+        condition: service_healthy
+    environment:
+      JVM_HOST:    app-jvm
+      JVM_PORT:    "8080"
+      NATIVE_HOST: app-native
+      NATIVE_PORT: "8081"
+      THREADS:     "10"
+      DURATION_SEC: "600"
+      RESULTS_DIR: /results
+      SCENARIO:    "with-vt"
+    volumes:
+      - ./results:/results
+    networks:
+      - benchmark-net
+
+networks:
+  benchmark-net:
+    driver: bridge

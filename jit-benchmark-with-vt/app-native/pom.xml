@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.3.5</version>
+        <relativePath/>
+    </parent>
+    <groupId>com.benchmark</groupId>
+    <artifactId>app-native</artifactId>
+    <version>1.0.0</version>
+    <name>app-native</name>
+
+    <properties>
+        <java.version>21</java.version>
+        <start-class>com.benchmark.app.Application</start-class>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!--
+            Micrometer Prometheus Registry
+            Expõe /actuator/prometheus com TODAS as métricas da JVM:
+            - jvm_memory_used_bytes (heap + non-heap separados por área)
+            - jvm_gc_pause_seconds (pausas de GC por tipo)
+            - process_cpu_usage (CPU% do processo)
+            - system_cpu_usage (CPU% do sistema)
+            - jvm_threads_live_threads (threads ativas)
+            - http_server_requests_seconds (latência por endpoint)
+        -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                
+                <configuration>
+                    <mainClass>com.benchmark.app.Application</mainClass>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.benchmark.app.Application</mainClass>
+                    <imageName>app-native</imageName>
+                    <buildArgs>
+                        <buildArg>--no-fallback</buildArg>
+                        <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                        <buildArg>-O2</buildArg>
+                    </buildArgs>
+                    <metadataRepository><enabled>true</enabled></metadataRepository>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-native</id>
+                        <goals><goal>compile-no-fork</goal></goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

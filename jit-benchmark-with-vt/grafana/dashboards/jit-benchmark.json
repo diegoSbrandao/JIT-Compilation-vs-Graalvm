@@ -1,0 +1,121 @@
+{
+  "title": "JIT vs Native Image",
+  "uid": "jit-benchmark",
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-12m", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "title": "Heap (MB) — JVM (azul) vs Native (verde)",
+      "type": "timeseries",
+      "description": "Dentes de serra no JVM = ciclos G1GC. Native com Serial GC faz coletas menores e mais frequentes.",
+      "targets": [
+        {"expr": "jvm_memory_used_bytes{application=\"app-jvm\",area=\"heap\"}/1024/1024", "legendFormat": "JVM heap (MB)"},
+        {"expr": "jvm_memory_used_bytes{application=\"app-native\",area=\"heap\"}/1024/1024", "legendFormat": "Native heap (MB)"}
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "short", "custom": {"lineWidth": 2}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "JVM heap (MB)"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1E88E5"}}]},
+          {"matcher": {"id": "byName", "options": "Native heap (MB)"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#43A047"}}]}
+        ]
+      }
+    },
+    {
+      "id": 2, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "title": "CPU do Processo (%)",
+      "type": "timeseries",
+      "description": "Pico no JVM durante warmup = JIT compilando + G1GC concurrent marking. Native: sem JIT, linha mais baixa.",
+      "targets": [
+        {"expr": "process_cpu_usage{application=\"app-jvm\"} * 100", "legendFormat": "JVM CPU%"},
+        {"expr": "process_cpu_usage{application=\"app-native\"} * 100", "legendFormat": "Native CPU%"}
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "percent", "min": 0, "max": 100, "custom": {"lineWidth": 2}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "JVM CPU%"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1E88E5"}}]},
+          {"matcher": {"id": "byName", "options": "Native CPU%"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#43A047"}}]}
+        ]
+      }
+    },
+    {
+      "id": 3, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "title": "Throughput (req/s)",
+      "type": "timeseries",
+      "description": "JVM sobe durante o warmup (~2-3 min) e supera o Native. Native é plano desde o início.",
+      "targets": [
+        {"expr": "sum(rate(http_server_requests_seconds_count{application=\"app-jvm\",uri!~\"/actuator.*\"}[15s]))", "legendFormat": "JVM req/s"},
+        {"expr": "sum(rate(http_server_requests_seconds_count{application=\"app-native\",uri!~\"/actuator.*\"}[15s]))", "legendFormat": "Native req/s"}
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "reqps", "custom": {"lineWidth": 2}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "JVM req/s"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1E88E5"}}]},
+          {"matcher": {"id": "byName", "options": "Native req/s"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#43A047"}}]}
+        ]
+      }
+    },
+    {
+      "id": 4, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "title": "Threads Ativas",
+      "type": "timeseries",
+      "description": "Com Virtual Threads: pool fixo independente da carga. Sem VT: Tomcat cria threads sob demanda.",
+      "targets": [
+        {"expr": "jvm_threads_live_threads{application=\"app-jvm\"}", "legendFormat": "JVM threads"},
+        {"expr": "jvm_threads_live_threads{application=\"app-native\"}", "legendFormat": "Native threads"}
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "short", "custom": {"lineWidth": 2}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "JVM threads"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1E88E5"}}]},
+          {"matcher": {"id": "byName", "options": "Native threads"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#43A047"}}]}
+        ]
+      }
+    },
+    {
+      "id": 5, "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+      "title": "Latência p50 / p95 / p99 — /api/primes/500 (warmup curve)",
+      "type": "timeseries",
+      "description": "A queda de latência do JVM nos primeiros minutos É o JIT aquecendo. Native é plano. Linhas sólidas = JVM. Tracejadas = Native.",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{application=\"app-jvm\",uri=\"/api/primes/{n}\"}[15s])) * 1000", "legendFormat": "JVM p50"},
+        {"expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{application=\"app-jvm\",uri=\"/api/primes/{n}\"}[15s])) * 1000", "legendFormat": "JVM p99"},
+        {"expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{application=\"app-native\",uri=\"/api/primes/{n}\"}[15s])) * 1000", "legendFormat": "Native p50"},
+        {"expr": "histogram_quantile(0.99, rate(http_server_requests_seconds_bucket{application=\"app-native\",uri=\"/api/primes/{n}\"}[15s])) * 1000", "legendFormat": "Native p99"}
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "ms", "custom": {"lineWidth": 2}},
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "JVM p50"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1E88E5"}}]},
+          {"matcher": {"id": "byName", "options": "JVM p99"},    "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#0D47A1"}}]},
+          {"matcher": {"id": "byName", "options": "Native p50"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#43A047"}}, {"id": "custom.lineStyle", "value": {"dash": [6,3]}}]},
+          {"matcher": {"id": "byName", "options": "Native p99"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#1B5E20"}}, {"id": "custom.lineStyle", "value": {"dash": [6,3]}}]}
+        ]
+      }
+    },
+    {
+      "id": 6, "gridPos": {"h": 6, "w": 12, "x": 0, "y": 24},
+      "title": "Non-Heap — Code Cache + Metaspace (MB)",
+      "type": "timeseries",
+      "description": "JVM cresce durante warmup = Code Cache enchendo com código compilado pelo C2. Native não tem Code Cache.",
+      "targets": [
+        {"expr": "jvm_memory_used_bytes{application=\"app-jvm\",area=\"nonheap\"}/1024/1024", "legendFormat": "JVM non-heap"},
+        {"expr": "jvm_memory_used_bytes{application=\"app-native\",area=\"nonheap\"}/1024/1024", "legendFormat": "Native non-heap"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short", "custom": {"lineWidth": 2}}}
+    },
+    {
+      "id": 7, "gridPos": {"h": 6, "w": 12, "x": 12, "y": 24},
+      "title": "Erros HTTP 5xx",
+      "type": "timeseries",
+      "description": "Deve ser zero. Qualquer erro indica OOM, CPU starvation ou timeout.",
+      "targets": [
+        {"expr": "sum(rate(http_server_requests_seconds_count{application=\"app-jvm\",status=~\"5..\"}[30s]))", "legendFormat": "JVM erros/s"},
+        {"expr": "sum(rate(http_server_requests_seconds_count{application=\"app-native\",status=~\"5..\"}[30s]))", "legendFormat": "Native erros/s"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps", "custom": {"lineWidth": 2}}}
+    }
+  ],
+  "schemaVersion": 38
+}
