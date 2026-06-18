@@ -129,6 +129,13 @@ public class BenchmarkController {
     // Com Virtual Threads, cada chamada recebe sua própria thread leve
     // sem bloquear plataform threads do SO.
     // Este endpoint demonstra o caso de uso principal do Project Loom.
+    // ATENÇÃO: este executor usa Virtual Threads SEMPRE, independente do valor de
+    // spring.threads.virtual.enabled (que só controla as threads do Tomcat que
+    // recebem a requisição HTTP, não o que o método faz internamente). Ou seja,
+    // mesmo no cenário "no-vt", este endpoint específico já está usando Virtual
+    // Threads por dentro nos dois apps (JVM e Native) — não invalida a comparação
+    // JIT vs Native (é simétrico), mas o rótulo "Virtual Threads desabilitadas" do
+    // relatório não se aplica a este endpoint. Ver nota equivalente no report.py.
     @GetMapping("/concurrent/{n}")
     public Map<String, Object> concurrent(@PathVariable int n) throws Exception {
         if (n > 100) n = 100;

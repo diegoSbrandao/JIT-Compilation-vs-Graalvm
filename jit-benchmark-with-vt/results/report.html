@@ -53,7 +53,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
 <body>
 <header>
   <h1>JIT Compilation vs GraalVM Native Image — Benchmark</h1>
-  <p>Gerado em 18/06/2026 13:37:37 · Spring Boot 3.3 · Java 21 · Virtual Threads: DESABILITADAS</p>
+  <p>Gerado em 18/06/2026 13:37:38 · Spring Boot 3.3 · Java 21 · Virtual Threads: HABILITADAS</p>
 </header>
 <nav>
   <a href="#warmup">Warmup</a>
@@ -62,25 +62,30 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
 </nav>
 <main>
 
+  <div class="warn-box" style="background:#FFEBEE;border-left:3px solid #C62828;color:#B71C1C;font-weight:bold;margin-bottom:18px">
+    ⚠️ RODADA INCOMPLETA: durou 192s de 600s esperados
+    (32%). O teste parece ter sido interrompido antes
+    do fim — trate estes números como preliminares, não como comparação final.
+  </div>
   <div class="cards">
     <div class="card">
       <h4>Amostras JVM</h4>
-      <div class="val">68,193</div>
+      <div class="val">22,662</div>
       <div class="sub">cold start + warmup + steady state</div>
     </div>
     <div class="card">
       <h4>Amostras Native</h4>
-      <div class="val">64,704</div>
+      <div class="val">8,870</div>
       <div class="sub">consistente desde o início</div>
     </div>
     <div class="card">
       <h4>TPS JVM</h4>
-      <div class="val">113.7</div>
+      <div class="val">118.2</div>
       <div class="sub">req/s (todo o período)</div>
     </div>
     <div class="card">
       <h4>TPS Native</h4>
-      <div class="val">107.9</div>
+      <div class="val">46.3</div>
       <div class="sub">req/s (todo o período)</div>
     </div>
     <div class="card hl">
@@ -90,12 +95,12 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
     </div>
     <div class="card">
       <h4>Heap JVM</h4>
-      <div class="val" style="font-size:1rem">10.9→55.5 MB</div>
+      <div class="val" style="font-size:1rem">9.5→1.6 MB</div>
       <div class="sub">antes → após o teste</div>
     </div>
     <div class="card">
       <h4>Heap Native</h4>
-      <div class="val" style="font-size:1rem">43.5→5.2 MB</div>
+      <div class="val" style="font-size:1rem">32.2→14.7 MB</div>
       <div class="sub">antes → após o teste</div>
     </div>
   </div>
@@ -107,8 +112,8 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
     <div class="ww">
       <div class="wc">
         <h4>🔵 HotSpot JIT</h4>
-        <svg width="280" height="52" style="display:block;margin:4px 0"><polyline points="2,30 4,18 6,3 8,26 11,28 13,13 15,22 18,37 20,34 22,29 25,13 27,22 29,2 31,11 34,27 36,43 38,26 41,43 43,32 45,36 48,32 50,30 52,34 54,44 57,33 59,43 61,28 64,33 66,27 68,26 71,38 73,20 75,25 77,34 80,17 82,29 84,22 87,32 89,34 91,28 94,37 96,29 98,19 100,17 103,27 105,28 107,25 110,38 112,19 114,33 117,17 119,24 121,26 123,24 126,30 128,29 130,22 133,34 135,28 137,36 140,34 142,44 144,28 146,44 149,27 151,36 153,26 156,43 158,43 160,35 163,29 165,19 167,34 169,38 172,42 174,50 176,38 179,34 181,35 183,26 186,34 188,39 190,39 192,30 195,38 197,37 199,32 202,27 204,27 206,47 209,39 211,34 213,37 215,23 218,36 220,27 222,23 225,16 227,18 229,28 232,41 234,30 236,24 238,37 241,40 243,39 245,38 248,30 250,33 252,42 255,34 257,34 259,22 261,29 264,26 266,33 268,34 271,47 273,22 275,34 278,25" fill="none" stroke="#1E88E5" stroke-width="1.8"/><text x="2" y="11" font-size="9" fill="#9E9E9E">14.1ms</text><text x="2" y="51" font-size="9" fill="#9E9E9E">4.2ms</text></svg>
-        <div style="font-size:.8rem;color:#616161">Cold start: <b>8.5ms</b> → Final: <b>9.5ms</b></div>
+        <svg width="280" height="52" style="display:block;margin:4px 0"><polyline points="2,45 9,23 16,48 23,41 30,50 37,47 44,25 51,44 58,47 65,36 72,33 79,19 86,18 94,14 101,25 108,40 115,47 122,39 129,40 136,50 143,50 150,33 157,34 164,39 171,41 178,13 186,2 193,33 200,33 207,8 214,36 221,40 228,15 235,42 242,37 249,18 256,40 263,41 270,41 278,47" fill="none" stroke="#1E88E5" stroke-width="1.8"/><text x="2" y="11" font-size="9" fill="#9E9E9E">153.9ms</text><text x="2" y="51" font-size="9" fill="#9E9E9E">4.9ms</text></svg>
+        <div style="font-size:.8rem;color:#616161">Cold start: <b>22.4ms</b> → Final: <b>14.9ms</b></div>
         <div style="font-size:.78rem;color:#9E9E9E;margin-top:5px;line-height:1.5">
           Queda nos primeiros ~30s = JIT compilando hot spots (tiers 1→4).
           Oscilações posteriores = pausas do G1GC e recompilações pontuais do C2.
@@ -116,8 +121,8 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
       </div>
       <div class="wc">
         <h4>🟢 GraalVM Native</h4>
-        <svg width="280" height="52" style="display:block;margin:4px 0"><polyline points="2,50 4,44 6,26 8,27 11,32 13,35 15,25 18,30 20,36 22,24 25,36 27,29 29,34 31,40 34,28 36,16 38,36 41,38 43,19 45,44 48,31 50,36 52,38 54,45 57,36 59,35 61,41 64,25 66,31 68,31 71,35 73,32 75,31 77,18 80,27 82,35 84,36 87,38 89,30 91,33 94,24 96,28 98,38 100,37 103,33 105,38 107,31 110,32 112,23 114,25 117,23 119,17 121,23 123,33 126,2 128,14 130,38 133,39 135,27 137,40 140,35 142,40 144,37 146,40 149,38 151,38 153,37 156,30 158,34 160,31 163,25 165,18 167,37 169,34 172,20 174,38 176,39 179,29 181,21 183,31 186,39 188,40 190,36 192,32 195,24 197,32 199,24 202,35 204,32 206,29 209,38 211,31 213,34 215,26 218,42 220,28 222,29 225,24 227,37 229,38 232,36 234,31 236,32 238,40 241,39 243,27 245,40 248,30 250,37 252,22 255,34 257,29 259,34 261,27 264,29 266,27 268,34 271,32 273,25 275,28 278,26" fill="none" stroke="#43A047" stroke-width="1.8"/><text x="2" y="11" font-size="9" fill="#9E9E9E">13.0ms</text><text x="2" y="51" font-size="9" fill="#9E9E9E">3.0ms</text></svg>
-        <div style="font-size:.8rem;color:#616161">Cold start: <b>3.0ms</b> → Final: <b>8.0ms</b></div>
+        <svg width="280" height="52" style="display:block;margin:4px 0"><polyline points="2,50 9,34 16,26 23,28 31,32 38,25 45,34 52,27 60,26 67,30 74,24 81,4 89,28 96,25 103,28 110,2 118,25 125,28 132,29 140,35 147,29 154,28 161,34 169,16 176,40 183,37 190,23 198,19 205,27 212,18 219,27 227,24 234,33 241,23 248,29 256,8 263,27 270,33 278,37" fill="none" stroke="#43A047" stroke-width="1.8"/><text x="2" y="11" font-size="9" fill="#9E9E9E">235.1ms</text><text x="2" y="51" font-size="9" fill="#9E9E9E">4.5ms</text></svg>
+        <div style="font-size:.8rem;color:#616161">Cold start: <b>4.5ms</b> → Final: <b>69.5ms</b></div>
         <div style="font-size:.78rem;color:#9E9E9E;margin-top:5px;line-height:1.5">
           Sem JIT — binário já está compilado. Linha plana desde o primeiro request.
           Vantagem máxima em ambientes com cold starts frequentes (Kubernetes, serverless).
@@ -133,19 +138,19 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
     <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px">
       <div style="flex:1;min-width:200px">
         <div style="font-size:.8rem;font-weight:bold;color:#1E88E5;margin-bottom:4px">🔵 JVM — Heap (MB)</div>
-        <svg width="280" height="40" style="display:block"><polyline points="2,33 8,20 15,9 22,37 29,29 36,23 43,14 50,2 57,31 64,20 71,9 77,37 84,26 91,16 98,4 105,30 112,19 119,17 126,26 133,28 140,19 146,9 153,38 160,36 167,26 174,14 181,3 188,31 195,20 202,10 209,37 215,26 222,16 229,6 236,33 243,22 250,12 257,38 264,27 271,17 278,9" fill="none" stroke="#1E88E5" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">67MB</text><text x="2" y="39" font-size="8" fill="#9E9E9E">2MB</text></svg><div style="font-size:.75rem;color:#616161">início: <b>11MB</b> → final: <b>55MB</b></div>
+        <svg width="280" height="40" style="display:block"><polyline points="2,34 25,27 48,29 71,2 94,17 117,30 140,38 163,10 186,15 209,23 232,29 255,36 278,38" fill="none" stroke="#1E88E5" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">68MB</text><text x="2" y="39" font-size="8" fill="#9E9E9E">2MB</text></svg><div style="font-size:.75rem;color:#616161">início: <b>10MB</b> → final: <b>2MB</b></div>
       </div>
       <div style="flex:1;min-width:200px">
         <div style="font-size:.8rem;font-weight:bold;color:#43A047;margin-bottom:4px">🟢 Native — Heap (MB)</div>
-        <svg width="280" height="40" style="display:block"><polyline points="2,2 8,34 15,13 22,31 29,29 36,23 43,31 50,27 57,34 64,38 71,33 77,34 84,34 91,38 98,36 105,36 112,34 119,33 126,33 133,36 140,38 146,36 153,36 160,37 167,36 174,36 181,36 188,37 195,36 202,38 209,38 215,38 222,36 229,36 236,38 243,33 250,38 257,37 264,36 271,36 278,35" fill="none" stroke="#43A047" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">44MB</text><text x="2" y="39" font-size="8" fill="#9E9E9E">1MB</text></svg><div style="font-size:.75rem;color:#616161">início: <b>44MB</b> → final: <b>5MB</b></div>
+        <svg width="280" height="40" style="display:block"><polyline points="2,2 27,14 52,7 77,37 102,11 127,18 152,21 177,8 202,14 227,38 252,19 278,23" fill="none" stroke="#43A047" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">32MB</text><text x="2" y="39" font-size="8" fill="#9E9E9E">2MB</text></svg><div style="font-size:.75rem;color:#616161">início: <b>32MB</b> → final: <b>15MB</b></div>
       </div>
       <div style="flex:1;min-width:200px">
         <div style="font-size:.8rem;font-weight:bold;color:#1E88E5;margin-bottom:4px">🔵 JVM — CPU%</div>
-        <svg width="280" height="40" style="display:block"><polyline points="2,38 8,4 15,3 22,3 29,3 36,3 43,3 50,3 57,3 64,3 71,2 77,3 84,3 91,3 98,3 105,3 112,3 119,3 126,3 133,3 140,3 146,3 153,3 160,3 167,3 174,3 181,3 188,2 195,3 202,3 209,3 215,2 222,3 229,3 236,3 243,2 250,3 257,3 264,3 271,3 278,3" fill="none" stroke="#1E88E5" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">100%</text><text x="2" y="39" font-size="8" fill="#9E9E9E">37%</text></svg><div style="font-size:.75rem;color:#616161">média: <b>98.3%</b></div>
+        <svg width="280" height="40" style="display:block"><polyline points="2,38 25,2 48,4 71,4 94,4 117,3 140,5 163,5 186,4 209,4 232,4 255,5 278,5" fill="none" stroke="#1E88E5" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">99%</text><text x="2" y="39" font-size="8" fill="#9E9E9E">45%</text></svg><div style="font-size:.75rem;color:#616161">média: <b>92.4%</b></div>
       </div>
       <div style="flex:1;min-width:200px">
         <div style="font-size:.8rem;font-weight:bold;color:#43A047;margin-bottom:4px">🟢 Native — CPU%</div>
-        <svg width="280" height="40" style="display:block"><polyline points="2,38 8,3 15,3 22,3 29,3 36,3 43,3 50,3 57,3 64,3 71,3 77,3 84,3 91,3 98,3 105,3 112,3 119,3 126,3 133,3 140,3 146,2 153,3 160,3 167,3 174,3 181,3 188,3 195,3 202,2 209,3 215,3 222,3 229,3 236,3 243,3 250,2 257,3 264,3 271,3 278,3" fill="none" stroke="#43A047" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">100%</text><text x="2" y="39" font-size="8" fill="#9E9E9E">4%</text></svg><div style="font-size:.75rem;color:#616161">média: <b>97.3%</b></div>
+        <svg width="280" height="40" style="display:block"><polyline points="2,2 27,19 52,2 77,11 102,38 127,2 152,19 177,21 202,15 227,2 252,2 278,2" fill="none" stroke="#43A047" stroke-width="1.5"/><text x="2" y="10" font-size="8" fill="#9E9E9E">100%</text><text x="2" y="39" font-size="8" fill="#9E9E9E">99%</text></svg><div style="font-size:.75rem;color:#616161">média: <b>99.8%</b></div>
       </div>
     </div>
     <div class="warn-box">
@@ -166,7 +171,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9746</td><td class='bad'>9248</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>7.0</td><td class='bad'>7.3</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='good'>1.0</td><td class='bad'>2.0</td></tr><tr><td>p90 (ms)</td><td class='bad'>31.0</td><td class='good'>27.0</td></tr><tr><td>p95 (ms)</td><td class='bad'>37.0</td><td class='good'>35.0</td></tr><tr><td>p99 (ms)</td><td class='bad'>48.0</td><td class='good'>46.0</td></tr><tr><td>Max (ms)</td><td class='good'>76</td><td class='bad'>90</td></tr><tr><td>Throughput r/s</td><td class='good'>16.2</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3249</td><td class='bad'>1279</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>28.2</td><td class='bad'>91.2</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='good'>2.0</td><td class='bad'>71.0</td></tr><tr><td>p90 (ms)</td><td class='good'>68.0</td><td class='bad'>290.4</td></tr><tr><td>p95 (ms)</td><td class='good'>186.0</td><td class='bad'>394.1</td></tr><tr><td>p99 (ms)</td><td class='good'>491.0</td><td class='bad'>687.2</td></tr><tr><td>Max (ms)</td><td class='good'>841</td><td class='bad'>1100</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.7</td></tr></tbody>
           </table>
           
         </div>
@@ -178,7 +183,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9746</td><td class='bad'>9247</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='bad'>8.3</td><td class='good'>6.9</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='good'>2.0</td><td class='good'>2.0</td></tr><tr><td>p90 (ms)</td><td class='bad'>33.0</td><td class='good'>27.0</td></tr><tr><td>p95 (ms)</td><td class='bad'>38.0</td><td class='good'>35.0</td></tr><tr><td>p99 (ms)</td><td class='bad'>47.0</td><td class='good'>46.0</td></tr><tr><td>Max (ms)</td><td class='bad'>73</td><td class='good'>71</td></tr><tr><td>Throughput r/s</td><td class='good'>16.3</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3249</td><td class='bad'>1276</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>55.8</td><td class='bad'>118.2</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='good'>3.0</td><td class='bad'>79.0</td></tr><tr><td>p90 (ms)</td><td class='good'>203.2</td><td class='bad'>289.5</td></tr><tr><td>p95 (ms)</td><td class='good'>391.0</td><td class='bad'>471.2</td></tr><tr><td>p99 (ms)</td><td class='good'>651.0</td><td class='bad'>685.0</td></tr><tr><td>Max (ms)</td><td class='good'>892</td><td class='bad'>1181</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.7</td></tr></tbody>
           </table>
           
         </div>
@@ -190,7 +195,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9746</td><td class='bad'>9247</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>7.3</td><td class='bad'>8.6</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='bad'>1</td></tr><tr><td>p50 (ms)</td><td class='good'>2.0</td><td class='bad'>3.0</td></tr><tr><td>p90 (ms)</td><td class='good'>27.0</td><td class='bad'>29.0</td></tr><tr><td>p95 (ms)</td><td class='good'>34.0</td><td class='bad'>36.0</td></tr><tr><td>p99 (ms)</td><td class='good'>39.0</td><td class='bad'>45.5</td></tr><tr><td>Max (ms)</td><td class='good'>66</td><td class='bad'>79</td></tr><tr><td>Throughput r/s</td><td class='good'>16.3</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3242</td><td class='bad'>1276</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>56.4</td><td class='bad'>131.9</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='bad'>1</td></tr><tr><td>p50 (ms)</td><td class='good'>4.0</td><td class='bad'>85.0</td></tr><tr><td>p90 (ms)</td><td class='good'>207.0</td><td class='bad'>373.5</td></tr><tr><td>p95 (ms)</td><td class='good'>417.9</td><td class='bad'>492.5</td></tr><tr><td>p99 (ms)</td><td class='good'>650.8</td><td class='bad'>777.8</td></tr><tr><td>Max (ms)</td><td class='good'>893</td><td class='bad'>995</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.7</td></tr></tbody>
           </table>
           
         </div>
@@ -202,7 +207,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9745</td><td class='bad'>9247</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>449.2</td><td class='bad'>482.1</td></tr><tr><td>Min (ms)</td><td class='good'>229</td><td class='bad'>231</td></tr><tr><td>p50 (ms)</td><td class='good'>444.0</td><td class='bad'>477.0</td></tr><tr><td>p90 (ms)</td><td class='good'>502.0</td><td class='bad'>552.0</td></tr><tr><td>p95 (ms)</td><td class='good'>544.8</td><td class='bad'>580.0</td></tr><tr><td>p99 (ms)</td><td class='good'>688.7</td><td class='bad'>734.0</td></tr><tr><td>Max (ms)</td><td class='good'>1020</td><td class='bad'>1170</td></tr><tr><td>Throughput r/s</td><td class='good'>16.3</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3232</td><td class='bad'>1261</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>471.4</td><td class='bad'>1890.8</td></tr><tr><td>Min (ms)</td><td class='good'>203</td><td class='bad'>261</td></tr><tr><td>p50 (ms)</td><td class='good'>436.0</td><td class='bad'>1879.0</td></tr><tr><td>p90 (ms)</td><td class='good'>799.0</td><td class='bad'>2408.0</td></tr><tr><td>p95 (ms)</td><td class='good'>891.0</td><td class='bad'>2678.0</td></tr><tr><td>p99 (ms)</td><td class='good'>1031.8</td><td class='bad'>3002.8</td></tr><tr><td>Max (ms)</td><td class='good'>1263</td><td class='bad'>3692</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.6</td></tr></tbody>
           </table>
           
         </div>
@@ -214,7 +219,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9737</td><td class='bad'>9239</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='bad'>9.7</td><td class='good'>9.0</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='good'>2.0</td><td class='good'>2.0</td></tr><tr><td>p90 (ms)</td><td class='bad'>38.0</td><td class='good'>35.0</td></tr><tr><td>p95 (ms)</td><td class='bad'>44.0</td><td class='good'>41.0</td></tr><tr><td>p99 (ms)</td><td class='good'>51.0</td><td class='good'>51.0</td></tr><tr><td>Max (ms)</td><td class='good'>68</td><td class='bad'>82</td></tr><tr><td>Throughput r/s</td><td class='good'>16.2</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3231</td><td class='bad'>1260</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='bad'>237.9</td><td class='good'>180.9</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='good'>0</td></tr><tr><td>p50 (ms)</td><td class='bad'>207.0</td><td class='good'>91.0</td></tr><tr><td>p90 (ms)</td><td class='bad'>557.0</td><td class='good'>476.0</td></tr><tr><td>p95 (ms)</td><td class='bad'>658.0</td><td class='good'>583.0</td></tr><tr><td>p99 (ms)</td><td class='bad'>794.7</td><td class='good'>793.4</td></tr><tr><td>Max (ms)</td><td class='good'>1023</td><td class='bad'>1093</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.6</td></tr></tbody>
           </table>
           
         </div>
@@ -226,7 +231,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9737</td><td class='bad'>9238</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='bad'>9.8</td><td class='good'>9.6</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='bad'>1</td></tr><tr><td>p50 (ms)</td><td class='good'>2.0</td><td class='bad'>3.0</td></tr><tr><td>p90 (ms)</td><td class='bad'>38.0</td><td class='good'>35.0</td></tr><tr><td>p95 (ms)</td><td class='bad'>43.0</td><td class='good'>41.0</td></tr><tr><td>p99 (ms)</td><td class='good'>51.0</td><td class='good'>51.0</td></tr><tr><td>Max (ms)</td><td class='good'>64</td><td class='bad'>89</td></tr><tr><td>Throughput r/s</td><td class='good'>16.2</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3230</td><td class='bad'>1259</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>60.2</td><td class='bad'>141.1</td></tr><tr><td>Min (ms)</td><td class='good'>0</td><td class='bad'>1</td></tr><tr><td>p50 (ms)</td><td class='good'>7.0</td><td class='bad'>84.0</td></tr><tr><td>p90 (ms)</td><td class='good'>203.1</td><td class='bad'>379.0</td></tr><tr><td>p95 (ms)</td><td class='good'>285.0</td><td class='bad'>501.2</td></tr><tr><td>p99 (ms)</td><td class='good'>506.0</td><td class='bad'>794.0</td></tr><tr><td>Max (ms)</td><td class='good'>867</td><td class='bad'>1174</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.6</td></tr></tbody>
           </table>
           
         </div>
@@ -238,7 +243,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
               <th>🔵 HotSpot JIT</th>
               <th>🟢 GraalVM Native</th>
             </tr></thead>
-            <tbody><tr><td>Amostras</td><td class='good'>9736</td><td class='bad'>9238</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>49.0</td><td class='bad'>50.1</td></tr><tr><td>Min (ms)</td><td class='good'>30</td><td class='good'>30</td></tr><tr><td>p50 (ms)</td><td class='good'>47.0</td><td class='bad'>48.0</td></tr><tr><td>p90 (ms)</td><td class='good'>73.0</td><td class='good'>73.0</td></tr><tr><td>p95 (ms)</td><td class='good'>78.0</td><td class='good'>78.0</td></tr><tr><td>p99 (ms)</td><td class='good'>84.0</td><td class='bad'>88.0</td></tr><tr><td>Max (ms)</td><td class='good'>143</td><td class='bad'>183</td></tr><tr><td>Throughput r/s</td><td class='good'>16.2</td><td class='bad'>15.4</td></tr></tbody>
+            <tbody><tr><td>Amostras</td><td class='good'>3229</td><td class='bad'>1259</td></tr><tr><td>Erros (%)</td><td class='good'>0.0</td><td class='good'>0.0</td></tr><tr><td>Avg (ms)</td><td class='good'>189.5</td><td class='bad'>360.8</td></tr><tr><td>Min (ms)</td><td class='good'>30</td><td class='bad'>32</td></tr><tr><td>p50 (ms)</td><td class='good'>57.0</td><td class='bad'>190.0</td></tr><tr><td>p90 (ms)</td><td class='good'>508.2</td><td class='bad'>802.2</td></tr><tr><td>p95 (ms)</td><td class='good'>756.6</td><td class='bad'>1075.4</td></tr><tr><td>p99 (ms)</td><td class='good'>983.9</td><td class='bad'>1329.2</td></tr><tr><td>Max (ms)</td><td class='good'>1228</td><td class='bad'>1594</td></tr><tr><td>Throughput r/s</td><td class='good'>16.9</td><td class='bad'>6.6</td></tr></tbody>
           </table>
           <div class="warn-box" style="margin-top:10px"><b>Nota:</b> este endpoint usa <code>Executors.newVirtualThreadPerTaskExecutor()</code> internamente em ambos os apps, independente do cenário (com ou sem Virtual Threads habilitadas no Tomcat). Isso não afeta a comparação JIT vs Native — é simétrico nos dois lados — mas o resultado deste endpoint específico não reflete o efeito de "Virtual Threads habilitadas/desabilitadas" anunciado no cabeçalho.</div>
         </div>
@@ -249,7 +254,7 @@ footer { text-align:center;color:#BDBDBD;font-size:.78rem;padding:16px; }
       <li><b>Verde = melhor, vermelho = pior</b> em cada linha. Para latência: menor é melhor. Para throughput: maior é melhor.</li>
       <li><b>Curva completa.</b> Os dados incluem cold start, warmup e steady state. O JVM começa lento e melhora — isso é intencional e honesto.</li>
       <li><b>p99</b> é o número mais importante: 99% dos requests foram mais rápidos que esse valor. É o que o usuário sente nos momentos de pico.</li>
-      <li><b>Resultado real desta execução</b> (vitória = avg E p99 melhores ao mesmo tempo): HotSpot JIT venceu em <b>Memory/1000, Fibonacci/38, Concurrent/50</b>; GraalVM Native venceu em <b>Primes/500, Serialize/100, Sort/10000</b>; sem vencedor claro em <b>Ping</b>. Isso é calculado a partir da tabela acima, não é uma regra fixa — rode de novo e confira se mudou.</li>
+      <li><b>Resultado real desta execução</b> (vitória = avg E p99 melhores ao mesmo tempo): HotSpot JIT venceu em <b>Ping, Primes/500, Memory/1000, Fibonacci/38, Sort/10000, Concurrent/50</b>; GraalVM Native venceu em <b>Serialize/100</b>. Isso é calculado a partir da tabela acima, não é uma regra fixa — rode de novo e confira se mudou.</li>
       <li><b>Heurística geral (não medida neste teste, é regra de bolso da literatura):</b> pods de vida curta, serverless, scale-out frequente tendem a favorecer Native Image pelo startup; pods de longa duração tendem a favorecer JVM pelas otimizações do C2 acumuladas ao longo do tempo. Trate como ponto de partida para investigar, não como conclusão deste benchmark.</li>
     </ul>
   </div>

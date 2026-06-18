@@ -105,6 +105,13 @@ services:
       THREADS:     "10"
       DURATION_SEC: "600"
       RESULTS_DIR: /results
+      # Mantenha estes 4 valores IGUAIS ao mem_limit/cpus dos serviços
+      # app-jvm e app-native definidos acima — o relatório HTML lê daqui,
+      # não tem mais texto fixo divergente do compose real.
+      JVM_MEM_MB:    "768"
+      JVM_CPUS:      "4.0"
+      NATIVE_MEM_MB: "256"
+      NATIVE_CPUS:   "4.0"
       SCENARIO:    "with-vt"
     volumes:
       - ./results:/results

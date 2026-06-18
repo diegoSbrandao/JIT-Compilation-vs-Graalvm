@@ -15,6 +15,19 @@ METRICS_TL  = os.path.join(RESULTS_DIR, "metrics_timeline.jsonl")
 OUT_HTML    = os.path.join(RESULTS_DIR, "report.html")
 SCENARIO    = os.environ.get("SCENARIO", "")
 
+# Limites de container — vêm das env vars setadas no docker-compose.yml (serviço
+# jmeter), que devem ser mantidas iguais a mem_limit/cpus dos serviços app-jvm e
+# app-native. Nunca hardcode esse texto direto no HTML: se a env var não vier,
+# mostramos "?" em vez de inventar um valor que pode estar desatualizado.
+JVM_MEM_MB    = os.environ.get("JVM_MEM_MB", "?")
+JVM_CPUS      = os.environ.get("JVM_CPUS", "?")
+NATIVE_MEM_MB = os.environ.get("NATIVE_MEM_MB", "?")
+NATIVE_CPUS   = os.environ.get("NATIVE_CPUS", "?")
+# Duração esperada do teste (a mesma passada ao JMeter via -JDURATION_SEC).
+# Usada só para detectar rodadas interrompidas e avisar — não afeta os cálculos.
+try: EXPECTED_DURATION_SEC = float(os.environ.get("DURATION_SEC", "0"))
+except ValueError: EXPECTED_DURATION_SEC = 0
+
 def load_csv(p):
     with open(p, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
@@ -183,6 +196,22 @@ def build_html(rows, mem_b, mem_a, tl):
     total_jvm = sum(1 for r in rows if r.get("label","").strip().startswith(jvm_pfx))
     total_nat = sum(1 for r in rows if r.get("label","").strip().startswith(nat_pfx))
 
+    # ── Detecção de rodada incompleta ──────────────────────────────────────
+    # Se a duração real medida (último timestamp - primeiro) ficar muito abaixo
+    # do DURATION_SEC esperado, a rodada provavelmente foi interrompida — avisamos
+    # em vez de apresentar como se fosse um teste completo igual aos outros.
+    incomplete_banner = ""
+    all_ts = [int(r["timeStamp"])/1000 for r in rows if r.get("timeStamp","0").isdigit()]
+    if all_ts and EXPECTED_DURATION_SEC > 0:
+        real_duration = max(all_ts) - min(all_ts)
+        if real_duration < 0.9 * EXPECTED_DURATION_SEC:
+            incomplete_banner = f"""
+  <div class="warn-box" style="background:#FFEBEE;border-left:3px solid #C62828;color:#B71C1C;font-weight:bold;margin-bottom:18px">
+    ⚠️ RODADA INCOMPLETA: durou {real_duration:.0f}s de {EXPECTED_DURATION_SEC:.0f}s esperados
+    ({real_duration/EXPECTED_DURATION_SEC*100:.0f}%). O teste parece ter sido interrompido antes
+    do fim — trate estes números como preliminares, não como comparação final.
+  </div>"""
+
     # Throughput geral
     def total_tps(pfx):
         ts=[int(r["timeStamp"])/1000 for r in rows
@@ -196,6 +225,24 @@ def build_html(rows, mem_b, mem_a, tl):
     jvm_h_a = snap_or_tl(mem_b,mem_a,tl,"jvm","heap_mb",True)
     nat_h_b = snap_or_tl(mem_b,mem_a,tl,"native","heap_mb",False)
     nat_h_a = snap_or_tl(mem_b,mem_a,tl,"native","heap_mb",True)
+
+    # ── Startup ──────────────────────────────────────────────────────────
+    # NUNCA mostrar um número fixo aqui. Lemos application_ready_time_seconds
+    # (gauge exposto automaticamente pelo Spring Boot Actuator) do snapshot
+    # "before". Se a métrica não foi coletada nesta execução (ex: rodadas
+    # antigas, antes deste fix), mostramos "não medido" — não inventamos valor.
+    jvm_ready = snap_or_tl(mem_b,mem_a,tl,"jvm","ready_s",False)
+    nat_ready = snap_or_tl(mem_b,mem_a,tl,"native","ready_s",False)
+    try:
+        _jr, _nr = float(jvm_ready), float(nat_ready)
+        if _jr > 0 and _nr > 0:
+            startup_val = f"~{round(_jr/_nr,1)}×"
+            startup_sub = f"Native mais rápido ({_nr:.2f}s vs {_jr:.2f}s) · application_ready_time_seconds"
+        else:
+            raise ValueError
+    except (ValueError, TypeError):
+        startup_val = "não medido"
+        startup_sub = "application_ready_time_seconds não coletado nesta execução"
 
     # Warmup curve — primes/500
     jvm_wc = warmup_curve(rows, f"{jvm_pfx} GET /api/primes/500")
@@ -255,12 +302,30 @@ def build_html(rows, mem_b, mem_a, tl):
     jvm_heap_svg = heap_svg(tl,"jvm","#1E88E5")
     nat_heap_svg = heap_svg(tl,"native","#43A047")
 
-    # Endpoint sections
-    def ep_section(ep_path, ep_name, ep_desc):
+    # Endpoint stats — calculados UMA vez e reaproveitados na tabela e na
+    # conclusão dinâmica abaixo, pra tabela e texto nunca poderem se contradizer.
+    ep_stats = {}
+    for ep_path, ep_name, ep_desc in ENDPOINTS_DEF:
         jl = f"{jvm_pfx} GET {ep_path}"
         nl = f"{nat_pfx} GET {ep_path}"
-        js = stats(rows, jl)
-        ns = stats(rows, nl)
+        ep_stats[ep_path] = (stats(rows, jl), stats(rows, nl), jl, nl)
+
+    # Nota fixa só para o endpoint /api/concurrent/{n}: o controller sempre cria
+    # Executors.newVirtualThreadPerTaskExecutor() internamente, independente do
+    # cenário (no-vt/with-vt). A flag spring.threads.virtual.enabled só afeta as
+    # threads do Tomcat que recebem a requisição, não essa chamada interna.
+    CONCURRENT_VT_NOTE = (
+        '<div class="warn-box" style="margin-top:10px">'
+        '<b>Nota:</b> este endpoint usa <code>Executors.newVirtualThreadPerTaskExecutor()</code> '
+        'internamente em ambos os apps, independente do cenário (com ou sem Virtual Threads '
+        'habilitadas no Tomcat). Isso não afeta a comparação JIT vs Native — é simétrico nos '
+        'dois lados — mas o resultado deste endpoint específico não reflete o efeito de '
+        '"Virtual Threads habilitadas/desabilitadas" anunciado no cabeçalho.</div>'
+    )
+
+    # Endpoint sections
+    def ep_section(ep_path, ep_name, ep_desc):
+        js, ns, jl, nl = ep_stats[ep_path]
         jtp= js["tps"] if js else 0
         ntp= ns["tps"] if ns else 0
         if not js and not ns:
@@ -291,6 +356,7 @@ def build_html(rows, mem_b, mem_a, tl):
             mrow("Throughput r/s", jtp,                 ntp,                lb=False)
         )
         ep_id=ep_path.replace("/api/","").replace("/","_")
+        extra_note = CONCURRENT_VT_NOTE if ep_path == "/api/concurrent/50" else ""
         return f"""
         <div class="section" id="{ep_id}">
           <h2>{ep_name} <span style="font-weight:normal;font-size:.83rem;color:#9E9E9E">— {ep_desc}</span></h2>
@@ -302,10 +368,39 @@ def build_html(rows, mem_b, mem_a, tl):
             </tr></thead>
             <tbody>{rows_html}</tbody>
           </table>
+          {extra_note}
         </div>"""
 
     ep_sections="".join(ep_section(*e) for e in ENDPOINTS_DEF)
     nav="".join(f'<a href="#{e[0].replace("/api/","").replace("/","_")}">{e[1]}</a>' for e in ENDPOINTS_DEF)
+
+    # ── Conclusão dinâmica ──────────────────────────────────────────────────
+    # Em vez de texto fixo dizendo quem "vence" em CPU-bound/memória (que pode
+    # contradizer a própria tabela dependendo da rodada), comparamos avg e p99
+    # reais de cada endpoint e contamos quem ganhou. Critério: precisa vencer em
+    # avg E p99 para contar como vitória clara; senão entra como "indefinido".
+    def decide(js, ns):
+        if not js or not ns: return None
+        if js["avg"] < ns["avg"] and js["p99"] <= ns["p99"]: return "jvm"
+        if ns["avg"] < js["avg"] and ns["p99"] <= js["p99"]: return "native"
+        return "indef"
+
+    jvm_wins, nat_wins, indef = [], [], []
+    for ep_path, ep_name, _ in ENDPOINTS_DEF:
+        js, ns, _, _ = ep_stats[ep_path]
+        d = decide(js, ns)
+        if d == "jvm": jvm_wins.append(ep_name)
+        elif d == "native": nat_wins.append(ep_name)
+        elif d == "indef": indef.append(ep_name)
+
+    def fmt(lst): return ", ".join(lst) if lst else "nenhum endpoint"
+    conclusion_bullet = (
+        f"<li><b>Resultado real desta execução</b> (vitória = avg E p99 melhores ao mesmo tempo): "
+        f"HotSpot JIT venceu em <b>{fmt(jvm_wins)}</b>; GraalVM Native venceu em <b>{fmt(nat_wins)}</b>"
+        + (f"; sem vencedor claro em <b>{fmt(indef)}</b>" if indef else "")
+        + ". Isso é calculado a partir da tabela acima, não é uma regra fixa — "
+        "rode de novo e confira se mudou.</li>"
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -325,7 +420,7 @@ def build_html(rows, mem_b, mem_a, tl):
   {nav}
 </nav>
 <main>
-
+{incomplete_banner}
   <div class="cards">
     <div class="card">
       <h4>Amostras JVM</h4>
@@ -349,8 +444,8 @@ def build_html(rows, mem_b, mem_a, tl):
     </div>
     <div class="card hl">
       <h4>Startup</h4>
-      <div class="val" style="font-size:1rem;color:#43A047">~21×</div>
-      <div class="sub">Native mais rápido (0.2s vs 4s)</div>
+      <div class="val" style="font-size:1rem;color:#43A047">{startup_val}</div>
+      <div class="sub">{startup_sub}</div>
     </div>
     <div class="card">
       <h4>Heap JVM</h4>
@@ -413,7 +508,9 @@ def build_html(rows, mem_b, mem_a, tl):
       </div>
     </div>
     <div class="warn-box">
-      <b>Limites de container:</b> JVM = 768 MB / 4 CPUs · Native = 256 MB / 2 CPUs.
+      <b>Limites de container:</b> JVM = {JVM_MEM_MB} MB / {JVM_CPUS} CPUs · Native = {NATIVE_MEM_MB} MB / {NATIVE_CPUS} CPUs.
+      (lidos das env vars JVM_MEM_MB/JVM_CPUS/NATIVE_MEM_MB/NATIVE_CPUS — mantenha sincronizadas
+      com mem_limit/cpus do docker-compose.yml)
       O JVM precisa de mais recursos por causa do JIT compiler, Code Cache e G1GC concorrente.
       O Native Image entrega throughput comparável com menos recursos reservados.
     </div>
@@ -427,9 +524,8 @@ def build_html(rows, mem_b, mem_a, tl):
       <li><b>Verde = melhor, vermelho = pior</b> em cada linha. Para latência: menor é melhor. Para throughput: maior é melhor.</li>
       <li><b>Curva completa.</b> Os dados incluem cold start, warmup e steady state. O JVM começa lento e melhora — isso é intencional e honesto.</li>
       <li><b>p99</b> é o número mais importante: 99% dos requests foram mais rápidos que esse valor. É o que o usuário sente nos momentos de pico.</li>
-      <li><b>JVM vence em CPU-bound após o warmup</b> porque o C2 aplica otimizações impossíveis em AOT: loop unrolling, inlining especulativo, vetorização SIMD.</li>
-      <li><b>Native vence em startup, memória e consistência</b>. Sem JIT rodando em paralelo, sem G1GC complexo — latência plana desde o primeiro request.</li>
-      <li><b>Ponto de crossover:</b> pods que vivem mais de ~3 minutos → JVM. Pods de vida curta, serverless, scale-out frequente → Native Image.</li>
+      {conclusion_bullet}
+      <li><b>Heurística geral (não medida neste teste, é regra de bolso da literatura):</b> pods de vida curta, serverless, scale-out frequente tendem a favorecer Native Image pelo startup; pods de longa duração tendem a favorecer JVM pelas otimizações do C2 acumuladas ao longo do tempo. Trate como ponto de partida para investigar, não como conclusão deste benchmark.</li>
     </ul>
   </div>
 

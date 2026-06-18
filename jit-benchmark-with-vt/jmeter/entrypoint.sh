@@ -64,6 +64,10 @@ snap = {
         "gc_pause_s": pq("sum(jvm_gc_pause_seconds_sum{application='app-jvm'})"),
         "threads":    pq("jvm_threads_live_threads{application='app-jvm'}"),
         "tps":        pq("sum(rate(http_server_requests_seconds_count{application='app-jvm',uri!~'/actuator.*'}[30s]))"),
+        # Tempo real de boot até a app ficar pronta (gauge fixado 1x no startup pelo
+        # StartupTimeMetricsListener do Spring Boot Actuator). Sem isso, NÃO inventamos
+        # número de startup no relatório — ele aparece como "não medido".
+        "ready_s":    pq("application_ready_time_seconds{application='app-jvm'}"),
     },
     "native": {
         "heap_mb":    pq("jvm_memory_used_bytes{application='app-native',area='heap'}/1024/1024"),
@@ -71,6 +75,7 @@ snap = {
         "gc_pause_s": pq("sum(jvm_gc_pause_seconds_sum{application='app-native'})"),
         "threads":    pq("jvm_threads_live_threads{application='app-native'}"),
         "tps":        pq("sum(rate(http_server_requests_seconds_count{application='app-native',uri!~'/actuator.*'}[30s]))"),
+        "ready_s":    pq("application_ready_time_seconds{application='app-native'}"),
     },
 }
 with open("${RESULTS_DIR}/metrics_timeline.jsonl", "a") as f:
@@ -148,7 +153,7 @@ fi
 
 echo ""
 echo "Gerando relatório HTML..."
-RESULTS_DIR="$RESULTS_DIR" SCENARIO="$SCENARIO" python3 /jmeter/report.py
+RESULTS_DIR="$RESULTS_DIR" SCENARIO="$SCENARIO" DURATION_SEC="$DURATION_SEC" python3 /jmeter/report.py
 
 echo ""
 echo "════════════════════════════════════════════"
